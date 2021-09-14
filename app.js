@@ -12,6 +12,8 @@ const usersRouter = require('./routes/users');
 const campsiteRouter = require('./routes/campsiteRouter');
 const promotionRouter = require('./routes/promotionRouter');
 const partnerRouter = require('./routes/partnerRouter');
+const uploadRouter = require('./routes/uploadRouter');
+
 // third party module
 // create schemas and manipulate (CreateReadUpdateDelete) our mongoDB database
 // without this middleware our express applicaiton cannot interact with out mongodb
@@ -19,6 +21,7 @@ const partnerRouter = require('./routes/partnerRouter');
 //also without this you would have to manualy manipulate mongodb which was showcased 
 // during nodejs driver exercise
 const mongoose = require('mongoose');
+const { updateOne } = require('./models/user');
 
 // decalring variable with name of our database
 //in this case my database is "nucampsite"
@@ -90,6 +93,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/campsites', campsiteRouter);
 app.use('/promotions', promotionRouter);
 app.use('/partners', partnerRouter);
+app.use('/imageUpload', uploadRouter);
 
 // catch 404 and forward to error handler 
 // uses http-errors when user goes to url that does not exist in code
