@@ -1,11 +1,12 @@
 const express = require('express');
-const authenticate = require('../authenticate'); 
+const authenticate = require('../authenticate');
 // import multer = proccesses multipart/form data enctype
 // built on top of busboy another middleware library for processing incoming data
 // multer adds 2 parts to req object file/files and body objects
 // body contains text form any text fields
 // file/files contain file or files
-const multer = require('multer'); 
+const multer = require('multer');
+const cors = require('/cors');
 
 // config for how multer will handle file uploads
 // multer has default values for this too
@@ -26,29 +27,30 @@ const imageFileFilter = (req, file, cb) => { // filter to evaluate the file
 };
 
 // call multer funstion
-const upload = multer({storage: storage, fileFilter: imageFileFilter});
+const upload = multer({ storage: storage, fileFilter: imageFileFilter });
 
 const uploadRouter = express.Router(); // create uplaodRouter
 
 // configure upload router to handle various request
 uploadRouter.route('/')
-.get(authenticate.verifyUser, authenticate.verifyAdmin, (req,res) => {
-  res.statusCode = 403;
-  res.end('GET operation not supported on /imageUpload');
-})
-// when client uploads a file to server multer will take over and handle any errors, after complete and returns with no errors that means file was succeffully uploaded to server
-.post(authenticate.verifyUser, authenticate.verifyAdmin, upload.single('imageFile'), (req,res) => {
-  res.statusCode = 200;
-  res.setHeader('Content-Type', 'application/json');
-  res.json(req.file); // confirms to client the file was uploaded succeffully
-})
-.put(authenticate.verifyUser, authenticate.verifyAdmin, (req,res) => {
-  res.statusCode = 403;
-  res.end('PUT operation not supported on /imageUpload');
-})
-.delete(authenticate.verifyUser, authenticate.verifyAdmin, (req,res) => {
-  res.statusCode = 403;
-  res.end('DELETE operation not supported on /imageUpload');
-});
+  .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
+  .get(cors.cors, authenticate.verifyUser, authenticate.verifyAdmin, (req, res) => {
+    res.statusCode = 403;
+    res.end('GET operation not supported on /imageUpload');
+  })
+  // when client uploads a file to server multer will take over and handle any errors, after complete and returns with no errors that means file was succeffully uploaded to server
+  .post(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, upload.single('imageFile'), (req, res) => {
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'application/json');
+    res.json(req.file); // confirms to client the file was uploaded succeffully
+  })
+  .put(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res) => {
+    res.statusCode = 403;
+    res.end('PUT operation not supported on /imageUpload');
+  })
+  .delete(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res) => {
+    res.statusCode = 403;
+    res.end('DELETE operation not supported on /imageUpload');
+  });
 
 module.exports = uploadRouter; // export uploadrouter
