@@ -4,6 +4,7 @@ const User = require('./models/user'); // importing user schema in models folder
 const JwtStrategy = require('passport-jwt').Strategy; // impoprting middleware to create strategies for JWT
 const ExtractJwt = require('passport-jwt').ExtractJwt; // middleware to extract JWT from req object
 const jwt = require('jsonwebtoken'); // importing the ability to create sign and verify jwts
+const FacebookTokenStrategy = require('passport-facebook-token');
 
 const config = require('./config.js'); // referencing our config.js file with secret key
 
@@ -66,3 +67,45 @@ exports.verifyAdmin = (req, res, next) => {
     return next(err);
   }
 };
+
+// export module
+exports.facebookTokenStrategy = passport.use(
+  // first arg contains settings, client id and secret jkey
+  new FacebookTokenStrategy(
+    {
+      clientID: config.facebook.clientId,
+      clientSecret: config.facebook.clientSecret
+    },
+    // verify callback functions
+    (accessToken, refreshToken, profile, done) => {
+      // looking for a user in our database that matches id property of profile
+      User.findOne({ facebookId: profile.id }, (err, user) => {
+        // check if error occured
+        if (err) {
+          // return err and user false
+          return done(err, false);
+        }
+        // check if no err and user exist in db
+        if (!err && user) {
+          // return null err and user found
+          return done(null, user);
+          // no err no user found, create new user
+        } else {
+          // create user from our mongoose User schema
+          user = new User({ username: profile.displayName })
+          // extract user info from facebook return object
+          // assign it to our user schema properties
+          user.facebookId = profile.id;
+          user.firstname = profile.name.givenName;
+          user.lastname = profile.name.familyName;
+          // err handling and then returning the new user we created
+          if (err) {
+            return done(err, false)
+          } else {
+            return done(null, user)
+          }
+        };
+      });
+    }
+  )
+)

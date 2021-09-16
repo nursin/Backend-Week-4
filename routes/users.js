@@ -2,7 +2,7 @@ const express = require('express');
 const User = require('../models/user');
 const passport = require('passport'); // import passport
 const authenticate = require('../authenticate'); // our authentication file
-const cors = require('/cors');
+const cors = require('./cors');
 
 const router = express.Router();
 
@@ -76,6 +76,19 @@ router.get('/logout', cors.corsWithOptions, (req, res, next) => {
     err.status = 401;
     return next(err);
   }
-})
+});
+
+
+// new route to handle our facebook auth user
+// passport will use facebook and plugin facebook token strategy from auhtenticate.js
+// then handle as usual with req and res
+router.get('/facebook/token', passport.authenticate('facebook-token'), (req, res) => {
+  if (req.user) {
+    const token = authenticate.getToken({_id: req.user._id});
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'application/json');
+    res.json({success: true, token, status: 'You are successfully logged in!'})
+  }
+});
 
 module.exports = router;

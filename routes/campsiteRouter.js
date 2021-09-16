@@ -1,7 +1,7 @@
 const express = require('express');
 const Campsite = require('../models/campsite');
 const authenticate = require('../authenticate'); // our authenticate module
-const cors = require('/cors');
+const cors = require('./cors');
 
 const campsiteRouter = express.Router();
 

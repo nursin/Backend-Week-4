@@ -12,6 +12,9 @@ const userSchema = new Schema({
     type: String,
     default: ''
   },
+  // adds user to our user schema, if adding more fields like other? have to add specific types
+  // now authenticate user in authenticate.js
+  facebookId: String,
   admin: {
     type: Boolean,
     default: false

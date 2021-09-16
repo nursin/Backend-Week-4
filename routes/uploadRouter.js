@@ -6,7 +6,7 @@ const authenticate = require('../authenticate');
 // body contains text form any text fields
 // file/files contain file or files
 const multer = require('multer');
-const cors = require('/cors');
+const cors = require('./cors');
 
 // config for how multer will handle file uploads
 // multer has default values for this too
